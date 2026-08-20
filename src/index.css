@@ -1,0 +1,109 @@
+@import url('https://googleapis.com');
+
+* {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+  background-color: #060b19; 
+  color: #f1f5f9;
+  overflow-y: auto;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  letter-spacing: -0.5px;
+}
+
+.animacao-premium {
+  animation: surgirFino 0.5s ease-out forwards;
+}
+
+@keyframes surgirFino {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes girarSutil {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.led-flow-card {
+  position: relative;
+  background-color: #111a36 !important;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+/* Criando o raio de LED branco e azul que fica girando atrás do card */
+.led-flow-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent 60%, #ffffff 80%, #0044cc 90%, transparent 100%);
+  animation: girarSutil 4s linear infinite;
+  z-index: -2;
+}
+
+/* Capa escura interna para deixar apenas um traço de LED ultrafino na borda */
+.led-flow-card::after {
+  content: '';
+  position: absolute;
+  inset: 3px; /* Grossura do LED (fino e moderno) */
+  background-color: #111a36;
+  border-radius: 13px;
+  z-index: -1;
+}
+
+/* DESIGN LIMPO DO PAINEL DE CONTROLE */
+.cyber-painel-card {
+  background: #111a36 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
+.cyber-card-urgente-painel {
+  background: #172347 !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+.cyber-input-premium {
+  width: 100%;
+  padding: 12px 14px;
+  background: #0d1527 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.cyber-input-premium:focus {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+}
+
+/* Letreiro do Rodapé */
+@keyframes letreiroSuave {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
+}
+
+.letreiro-animado {
+  display: inline-block;
+  padding-left: 100%;
+  animation: letreiroSuave 30s linear infinite;
+}
