@@ -16,7 +16,7 @@ export default function TvScreen({ supabase }) {
       if (data) {
         const normais = data.filter(item => item.categoria !== 'Letreiro');
         if (normais.length > 0) setCards(normais);
-        const letreiro = data.find(item => item.categoria === 'Letreiro');
+        const letreiro = data.find(item => item.categoria && item.categoria.toLowerCase() === 'letreiro');
         if (letreiro) setTextoLetreiro(letreiro.descricao);
       }
     };
@@ -24,7 +24,6 @@ export default function TvScreen({ supabase }) {
     const databaseInterval = setInterval(buscarDados, 8000);
     return () => { clearInterval(clockInterval); clearInterval(databaseInterval); };
   }, [supabase]);
-
   useEffect(() => {
     if (cards.length <= 1) return;
     const tempoDeExibicao = (cards[cardAtualIndex]?.duracao || 10) * 1000;
@@ -37,123 +36,117 @@ export default function TvScreen({ supabase }) {
   const cardAtivo = cards[cardAtualIndex];
   const layoutDefinido = cardAtivo?.categoria || "Layout 2: Cyber Dashboard";
 
-    return (
+  return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#060b19', color: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       
-      {/* 👑 CABEÇALHO INSTITUCIONAL */}
-      <div style={{ height: '65px', backgroundColor: '#111a36', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 40px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', zIndex: 10 }}>
+      {/* HEADER DA ESCOLA */}
+      <div style={{ height: '70px', backgroundColor: '#111a36', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 40px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ background: 'linear-gradient(135deg, #ffffff, #0044cc)', color: '#0a1128', width: '34px', height: '34px', borderRadius: '50%', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px' }}>B</div>
-          <div style={{ fontSize: '20px', fontWeight: '800', color: '#ffffff', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-            PEI Barão de Jundiaí
+          <div style={{ background: 'linear-gradient(135deg, #ffffff, #00d2ff)', color: '#060b19', width: '36px', height: '36px', borderRadius: '50%', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px' }}>B</div>
+          <div style={{ fontSize: '20px', fontWeight: '800', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+            PEI Barão <span className="fonte-cursiva" style={{ textTransform: 'none', color: '#00d2ff', fontSize: '22px', marginLeft: '4px' }}>de Jundiaí</span>
           </div>
         </div>
-        <div style={{ fontSize: '20px', fontWeight: '700', color: '#f8fafc', fontFamily: 'monospace' }}>
-          {horaAtual}
-        </div>
+        <div style={{ fontSize: '22px', fontWeight: '700', color: '#00d2ff', fontFamily: 'monospace', letterSpacing: '1px' }}>{horaAtual}</div>
       </div>
       
-      {/* 🏙️ RENDERIZADOR COM ESPAÇAMENTO MATEMÁTICO PERFEITO (SEM CORTES) */}
-      <div style={{ height: 'calc(100vh - 110px)', position: 'relative', zIndex: 2, boxSizing: 'border-box' }}>
-        
+      {/* CONTEÚDO DINÂMICO */}
+      <div style={{ height: 'calc(100vh - 115px)', position: 'relative', zIndex: 2, padding: '20px' }}>
         {cardAtivo ? (
           <>
-            {/* MODELO 1: FOTO INTEIRA EM TELA CHEIA (COM VIDRO NO MEIO) */}
+            {/* MODELO 1: IMAGEM/VÍDEO INTEIRA EM TELA CHEIA REAIS (GIGANTE NO MONITOR) */}
             {layoutDefinido.includes("Layout 1") && (
-              <div style={{ position: 'absolute', inset: 0, backgroundImage: cardAtivo.link_fundo ? `url(${cardAtivo.link_fundo})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
-                <div className="animacao-premium led-flow-card" style={{ padding: '40px', borderRadius: '16px', textAlign: 'center', maxWidth: '700px', width: '100%' }}>
-                  <h1 style={{ fontSize: '38px', fontWeight: '800', color: '#ffffff' }}>{cardAtivo.titulo}</h1>
-                  <div style={{ width: '50px', height: '2px', backgroundColor: '#ffffff', margin: '12px auto', opacity: 0.5 }} />
-                  <p style={{ fontSize: '20px', color: '#cbd5e1', lineHeight: '1.5' }}>{cardAtivo.descricao}</p>
+              <div style={{ position: 'absolute', inset: 0, backgroundColor: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                
+                {/* Mídia real expandida ocupando 100% da área física */}
+                {cardAtivo.link_fundo?.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) ? (
+                  <video src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} autoPlay loop muted playsInline />
+                ) : (
+                  <img src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Mural" />
+                )}
+
+                {/* Caixa de vidro flutuando por cima da imagem de forma chique */}
+                <div style={{ position: 'absolute', bottom: '40px', padding: '24px 40px', textAlign: 'center', maxWidth: '750px', width: '90%', background: 'rgba(6, 11, 25, 0.85)', backdropFilter: 'blur(12px)', webkitBackdropFilter: 'blur(12px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 20px 50px rgba(0,0,0,0.6)', zIndex: 5 }}>
+                  <h1 style={{ fontSize: '36px', fontWeight: '800', color: '#ffffff', margin: 0 }}>{cardAtivo.titulo}</h1>
+                  {cardAtivo.descricao && (
+                    <>
+                      <div style={{ width: '40px', height: '2px', backgroundColor: '#00d2ff', margin: '12px auto', boxShadow: '0 0 10px #00d2ff' }} />
+                      <p style={{ fontSize: '18px', color: '#e2e8f0', lineHeight: '1.5', margin: 0 }}>{cardAtivo.descricao}</p>
+                    </>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* MODELO 2: CYBER DASHBOARD CENTRALIZADO COM LED (FOTO NA DIREITA) */}
+            {/* MODELO 2: SPLIT DASHBOARD PREMIUM (IMAGEM INTEIRA NA DIREITA SEM CORTAR) */}
             {layoutDefinido.includes("Layout 2") && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', padding: '20px 40px', gap: '30px', height: '100%', alignItems: 'center', boxSizing: 'border-box' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '90%' }}>
-                  <div className="animacao-premium led-flow-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '30px', width: '100%', height: '100%' }}>
-                    <h1 style={{ fontSize: '38px', fontWeight: '800', color: '#ffffff' }}>{cardAtivo.titulo}</h1>
-                    <div style={{ width: '60px', height: '3px', backgroundColor: '#ffffff', opacity: 0.5, margin: '14px 0' }} />
-                    <p style={{ fontSize: '20px', color: '#cbd5e1', lineHeight: '1.5', maxWidth: '90%' }}>{cardAtivo.descricao}</p>
-                  </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '32px', height: '100%', alignItems: 'center', padding: '10px 20px', boxSizing: 'border-box' }}>
+                <div className="led-moldura-premium" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '40px', height: '95%' }}>
+                  <h1 style={{ fontSize: '44px', fontWeight: '800' }}>{cardAtivo.titulo}</h1>
+                  <div style={{ width: '60px', height: '3px', backgroundColor: '#00d2ff', margin: '20px 0', boxShadow: '0 0 10px #00d2ff' }} />
+                  <p style={{ fontSize: '22px', color: '#cbd5e1', lineHeight: '1.6', maxWidth: '85%' }}>{cardAtivo.descricao}</p>
+                  {cardAtivo.horario && <div style={{ marginTop: '24px', padding: '10px 24px', background: 'rgba(0,210,255,0.1)', border: '1px solid #00d2ff', borderRadius: '30px', fontSize: '16px', fontWeight: '700', color: '#00d2ff' }}>{cardAtivo.horario}</div>}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '90%' }}>
-                  <div className="animacao-premium led-flow-card" style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {cardAtivo.link_fundo && cardAtivo.link_fundo.trim() !== "" ? (
-                      <img src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Mural" />
-                    ) : (
-                      <div style={{ color: '#64748b', fontSize: '14px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>PEI BARÃO DE JUNDIAÍ</div>
-                    )}
-                  </div>
+                <div className="led-moldura-premium" style={{ height: '95%', overflow: 'hidden', backgroundColor: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {cardAtivo.link_fundo?.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) ? (
+                    <video src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} autoPlay loop muted playsInline />
+                  ) : (
+                    <img src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Mural" />
+                  )}
                 </div>
               </div>
             )}
-
-            {/* MODELO 3: MINIMALISTA SÓBRIO (SEM FOTO) */}
+            {/* MODELO 3: EDITORIAL SEM FOTO */}
             {layoutDefinido.includes("Layout 3") && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '40px' }}>
-                <div className="animacao-premium led-flow-card" style={{ padding: '60px 40px', borderRadius: '24px', textAlign: 'center', width: '100%', maxWidth: '850px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                  <h1 style={{ fontSize: '46px', fontWeight: '800', color: '#ffffff', marginBottom: '20px' }}>{cardAtivo.titulo}</h1>
-                  <p style={{ fontSize: '24px', color: '#cbd5e1', lineHeight: '1.6', maxWidth: '85%', margin: '0 auto' }}>{cardAtivo.descricao}</p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                <div className="led-moldura-premium" style={{ padding: '60px 50px', textAlign: 'center', width: '100%', maxWidth: '900px' }}>
+                  <h1 className="fonte-cursiva" style={{ fontSize: '56px', color: '#00d2ff', marginBottom: '16px' }}>{cardAtivo.titulo}</h1>
+                  <p style={{ fontSize: '26px', color: '#e2e8f0', lineHeight: '1.7', maxWidth: '85%', margin: '0 auto' }}>{cardAtivo.descricao}</p>
                 </div>
               </div>
             )}
 
-            {/* MODELO 4: ALERTA OFICIAL CRÍTICO (BORDA DUPLA BRANCA) */}
+            {/* MODELO 4: EXIBIÇÃO EXCLUSIVA DE MÍDIA (100% TELA CHEIA - SEM TEXTOS) */}
             {layoutDefinido.includes("Layout 4") && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', padding: '40px' }}>
-                <div className="animacao-premium" style={{ backgroundColor: '#1c0d12', border: '5px double #ffffff', borderRadius: '16px', padding: '40px', textAlign: 'center', maxWidth: '800px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
-                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#ffffff', letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '10px' }}>COMUNICADO CRÍTICO</div>
-                  <h1 style={{ fontSize: '44px', fontWeight: '800', color: '#ffffff', margin: '0 0 16px 0' }}>{cardAtivo.titulo}</h1>
-                  <p style={{ fontSize: '20px', color: '#e2e8f0', lineHeight: '1.5' }}>{cardAtivo.descricao}</p>
-                </div>
+              <div style={{ position: 'absolute', inset: 0, backgroundColor: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '20px' }}>
+                {cardAtivo.link_fundo?.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) || cardAtivo.link_fundo?.includes('video') ? (
+                  <video src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} autoPlay loop muted playsInline />
+                ) : (
+                  <img src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Galeria Barão" />
+                )}
               </div>
             )}
 
-            {/* MODELO 5: INVERTIDO PREMIUM (FOTO NA ESQUERDA) */}
+            {/* MODELO 5: REVISTA PREMIUM (IMAGEM INTEIRA NA ESQUERDA SEM CORTAR) */}
             {layoutDefinido.includes("Layout 5") && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', padding: '20px 40px', gap: '30px', height: '100%', alignItems: 'center', boxSizing: 'border-box' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '90%' }}>
-                  <div className="animacao-premium led-flow-card" style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {cardAtivo.link_fundo && cardAtivo.link_fundo.trim() !== "" ? (
-                      <img src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Mural" />
-                    ) : (
-                      <div style={{ color: '#64748b', fontSize: '14px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>PEI BARÃO DE JUNDIAÍ</div>
-                    )}
-                  </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '32px', height: '100%', alignItems: 'center', padding: '10px 20px', boxSizing: 'border-box' }}>
+                <div className="led-moldura-premium" style={{ height: '95%', overflow: 'hidden', backgroundColor: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {cardAtivo.link_fundo?.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) ? (
+                    <video src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} autoPlay loop muted playsInline />
+                  ) : (
+                    <img src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Mural" />
+                  )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '90%' }}>
-                  <div className="animacao-premium led-flow-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '30px', width: '100%', height: '100%' }}>
-                    <h1 style={{ fontSize: '38px', fontWeight: '800', color: '#ffffff' }}>{cardAtivo.titulo}</h1>
-                    <div style={{ width: '60px', height: '3px', backgroundColor: '#ffffff', opacity: 0.5, margin: '14px 0' }} />
-                    <p style={{ fontSize: '20px', color: '#cbd5e1', lineHeight: '1.5', maxWidth: '90%' }}>{cardAtivo.descricao}</p>
-                  </div>
+                <div className="led-moldura-premium" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '40px', height: '95%' }}>
+                  <h1 style={{ fontSize: '44px', fontWeight: '800' }}>{cardAtivo.titulo}</h1>
+                  <div style={{ width: '60px', height: '3px', backgroundColor: '#00d2ff', margin: '20px 0', boxShadow: '0 0 10px #00d2ff' }} />
+                  <p style={{ fontSize: '22px', color: '#cbd5e1', lineHeight: '1.6', maxWidth: '85%' }}>{cardAtivo.descricao}</p>
                 </div>
               </div>
             )}
           </>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            <div className="animacao-premium led-flow-card" style={{ padding: '30px 50px', color: '#64748b', fontSize: '16px', fontWeight: '600' }}>Aguardando novos informativos da PEI Barão</div>
+            <div className="led-moldura-premium" style={{ padding: '40px 60px', color: 'var(--texto-secundario)', fontSize: '18px', fontWeight: '600' }}>Aguardando novos informativos da PEI Barão</div>
           </div>
         )}
-
       </div>
 
-      {/* 🚨 RODAPÉ DO LETREIRO CORRENDO */}
-      <div style={{ height: '45px', backgroundColor: '#111a36', display: 'flex', alignItems: 'center', position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden', borderTop: '1px solid rgba(255, 255, 255, 0.1)', zIndex: 10 }}>
-        <div style={{ backgroundColor: '#ffffff', color: '#0a1128', padding: '0 20px', height: '100%', display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: '800', zIndex: 12, position: 'absolute', left: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>
-          Aviso
-        </div>
-        <div style={{ display: 'flex', width: '100%', overflow: 'hidden', zIndex: 11 }}>
-          <span className="letreiro-animado" style={{ fontSize: '15px', fontWeight: '600', whiteSpace: 'nowrap', color: '#ffffff', letterSpacing: '0.5px' }}>
-            {textoLetreiro}
-          </span>
-        </div>
+      {/* FOOTER LETREIRO DESTRAVADO */}
+      <div style={{ height: '45px', backgroundColor: '#111a36', display: 'flex', alignItems: 'center', position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden', borderTop: '1px solid rgba(255, 255, 255, 0.08)', zIndex: 10 }}>
+        <div style={{ backgroundColor: '#00d2ff', color: '#060b19', padding: '0 24px', height: '100%', display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: '800', zIndex: 12, position: 'absolute', left: 0, textTransform: 'uppercase', letterSpacing: '1px' }}>Aviso</div>
+        <div style={{ display: 'flex', width: '100%', overflow: 'hidden', whiteSpace: 'nowrap', paddingLeft: '90px' }}><span className="letreiro-fluxo" style={{ fontSize: '16px', fontWeight: '600', color: '#ffffff', display: 'inline-block' }}>{textoLetreiro}</span></div>
       </div>
-
     </div>
   );
 }
