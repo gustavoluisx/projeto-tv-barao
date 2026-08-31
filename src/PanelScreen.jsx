@@ -40,7 +40,9 @@ export default function PanelScreen({ supabase, dark, setDark }) {
 
   const handleTransmitir = async (e) => {
     e.preventDefault();
-    if (!titulo || !descricao) return alert("Por favor, preencha o título e a descrição.");
+        if (!categoria.includes("Layout 4") && (!titulo || !descricao)) {
+      return alert("Por favor, preencha o título e a descrição.");
+    }
     const { error } = await supabase.from('avisos').insert([{
       titulo, descricao, categoria, duracao: parseInt(duracao), horario, link_fundo: linkFundo
     }]);
@@ -105,7 +107,7 @@ export default function PanelScreen({ supabase, dark, setDark }) {
               <div style={{ flex: 1, textAlign: 'left' }}><label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Duração na TV (seg)</label><input type="number" className="input-chique" value={duracao} onChange={(e) => setDuracao(e.target.value)} /></div>
             </div>
 
-            <div style={{ textAlign: 'left' }}><label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Modelo do Layout</label><select className="input-chique" style={{ fontWeight: '600' }} value={categoria} onChange={(e) => setCategoria(e.target.value)}><option value="Layout 1: Foto Inteira">Modelo 1: Imagem Inteira em Tela Cheia</option><option value="Layout 2: Cyber Dashboard">Modelo 2: Split Dashboard (Imagem na Direita)</option><option value="Layout 3: Minimalista Sem Foto">Modelo 3: Editorial Nobre (Apenas Texto)</option><option value="Layout 4: Alerta Critico">Modelo 4: Alerta Institucional Crítico</option><option value="Layout 5: Revista (Foto Esquerda)">Modelo 5: Revista Class (Imagem na Esquerda)</option></select></div>
+            <div style={{ textAlign: 'left' }}><label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Modelo do Layout</label><select className="input-chique" style={{ fontWeight: '600' }} value={categoria} onChange={(e) => setCategoria(e.target.value)}><option value="Layout 1: Foto Inteira">Modelo 1: Imagem Inteira em Tela Cheia</option><option value="Layout 2: Cyber Dashboard">Modelo 2: Split Dashboard (Imagem na Direita)</option><option value="Layout 3: Minimalista Sem Foto">Modelo 3: Editorial Nobre (Apenas Texto)</option><option value="Layout 4: Somente foto/vídeo">Modelo 4: Foto/Vídeo Puro em Tela Cheia (Sem Textos)</option><option value="Layout 5: Revista (Foto Esquerda)">Modelo 5: Revista Class (Imagem na Esquerda)</option></select></div>
             <div style={{ textAlign: 'left' }}><label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Anexar Mídia (Foto/Vídeo)</label><input type="file" accept="image/*,video/*" className="input-chique" onChange={async (e) => { const file = e.target.files[0]; if (!file) return; const name = `${Date.now()}_${file.name}`; const { error } = await supabase.storage.from('imagens-mural').upload(name, file); if (!error) { const { data } = supabase.storage.from('imagens-mural').getPublicUrl(name); setLinkFundo(data.publicUrl); alert("Mídia vinculada!"); } }} /></div>
             
             <button type="submit" style={{ width: '100%', padding: '16px', border: 'none', borderRadius: '12px', background: 'var(--texto-principal)', color: 'var(--bg-principal)', fontSize: '14px', fontWeight: '800', cursor: 'pointer', marginTop: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>Transmitir para a TV</button>
