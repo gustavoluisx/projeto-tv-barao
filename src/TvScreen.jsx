@@ -42,7 +42,15 @@ export default function TvScreen({ supabase }) {
       {/* HEADER DA ESCOLA */}
       <div style={{ height: '70px', backgroundColor: '#111a36', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 40px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ background: 'linear-gradient(135deg, #ffffff, #00d2ff)', color: '#060b19', width: '36px', height: '36px', borderRadius: '50%', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px' }}>B</div>
+                    <img 
+            src="/src/assets/LOGO BRANCO.png" 
+            alt="Logo PEI Barão" 
+            style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '8px' }} 
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
+
           <div style={{ fontSize: '20px', fontWeight: '800', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             PEI Barão <span className="fonte-cursiva" style={{ textTransform: 'none', color: '#00d2ff', fontSize: '22px', marginLeft: '4px' }}>de Jundiaí</span>
           </div>
@@ -106,14 +114,28 @@ export default function TvScreen({ supabase }) {
               </div>
             )}
 
-            {/* MODELO 4: EXIBIÇÃO EXCLUSIVA DE MÍDIA (100% TELA CHEIA - SEM TEXTOS) */}
+            {/* MODELO 4: EXIBIÇÃO EXCLUSIVA DE MÍDIA COM FUNDO BORRADO PREMIUM (SEM CORTES) */}
             {layoutDefinido.includes("Layout 4") && (
               <div style={{ position: 'absolute', inset: 0, backgroundColor: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '20px' }}>
-                {cardAtivo.link_fundo?.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) || cardAtivo.link_fundo?.includes('video') ? (
-                  <video src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} autoPlay loop muted playsInline />
-                ) : (
-                  <img src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} alt="Galeria Barão" />
-                )}
+                
+                {/* 🌌 CAMADA 1: FUNDO ESTICADO E BORRADO PARA ELIMINAR AS FAIXAS PRETAS */}
+                <div style={{ position: 'absolute', inset: 0, transform: 'scale(1.1)', filter: 'blur(30px) brightness(0.4)', opacity: 0.7, zIndex: 1 }}>
+                  {cardAtivo.link_fundo?.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) || cardAtivo.link_fundo?.includes('video') ? (
+                    <video src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} autoPlay loop muted playsInline />
+                  ) : (
+                    <img src={cardAtivo.link_fundo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Fundo Borrado" />
+                  )}
+                </div>
+
+                {/* 📸 CAMADA 2: IMAGEM PRINCIPAL CENTRALIZADA, 100% INTEIRA E SEM CORTAR */}
+                <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+                  {cardAtivo.link_fundo?.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) || cardAtivo.link_fundo?.includes('video') ? (
+                    <video src={cardAtivo.link_fundo} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} autoPlay loop muted playsInline />
+                  ) : (
+                    <img src={cardAtivo.link_fundo} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} alt="Mídia Central" />
+                  )}
+                </div>
+
               </div>
             )}
 
