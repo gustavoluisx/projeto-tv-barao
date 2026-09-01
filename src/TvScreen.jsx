@@ -43,18 +43,19 @@ export default function TvScreen({ supabase }) {
       <div style={{ height: '7vh', minHeight: '60px', backgroundColor: '#111a36', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4vw', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           
-          {/* LOGO BLINDADA COM CAMINHO PÚBLICO SEGURO */}
-          <img 
-            src="/LOGO BRANCO.png" 
-            alt="Logo PEI Barão" 
-            style={{ height: '4.5vh', minHeight: '35px', width: 'auto', objectFit: 'contain' }} 
-            onError={(e) => {
-              // Segunda tentativa caso o servidor do Vite use a pasta assets
-              if (e.target.src !== window.location.origin + "/src/assets/LOGO BRANCO.png") {
-                e.target.src = "/src/assets/LOGO BRANCO.png";
-              }
-            }}
-          />
+                   {/* 🌟 BRASÃO EM CÍRCULO PERFEITO COM ACABAMENTO PREMIUM */}
+          <div style={{ backgroundColor: '#000000', width: '50px', height: '50px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.6)' }}>
+            <img 
+              src="/logo-branca.png" 
+              alt="Logo PEI Barão" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              onError={(e) => {
+                if (e.target.src !== window.location.origin + "/src/assets/logo-branca.png") {
+                  e.target.src = "/src/assets/logo-branca.png";
+                }
+              }}
+            />
+          </div>
 
           <div style={{ fontSize: 'calc(14px + 0.5vw)', fontWeight: '800', letterSpacing: '0.5px', textTransform: 'uppercase', color: '#ffffff' }}>
             PEI Barão de Jundiaí
