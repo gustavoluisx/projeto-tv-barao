@@ -65,9 +65,13 @@ export default function PanelScreen({ supabase, dark, setDark }) {
       {/* 🧭 NAV LATERAL CHIQUE */}
       <div className="led-moldura-premium" style={{ width: '280px', padding: '40px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ textAlign: 'left', marginBottom: '40px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: '800', letterSpacing: '0.5px' }}>PEI BARÃO</h2>
-            <p className="fonte-cursiva" style={{ fontSize: '15px', color: 'var(--neon-fluxo)', marginTop: '2px' }}>de Jundiaí</p>
+                    <div style={{ textAlign: 'left', marginBottom: '40px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '800', letterSpacing: '0.5px', color: '#ffffff', textTransform: 'uppercase', margin: 0 }}>
+              PEI Barão
+            </h2>
+            <p style={{ fontSize: '14px', fontWeight: '600', color: '#ffffff', marginTop: '2px', textTransform: 'none' }}>
+              DE JUNDIAÍ
+            </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ padding: '14px 16px', background: 'var(--neon-fluxo)', color: '#060b19', borderRadius: '14px', fontWeight: '700', fontSize: '14px', boxShadow: '0 4px 15px var(--neon-sombra)' }}>Central de Controle</div>
@@ -107,19 +111,42 @@ export default function PanelScreen({ supabase, dark, setDark }) {
               <div style={{ flex: 1, textAlign: 'left' }}><label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Duração na TV (seg)</label><input type="number" className="input-chique" value={duracao} onChange={(e) => setDuracao(e.target.value)} /></div>
             </div>
 
-            <div style={{ textAlign: 'left' }}><label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Modelo do Layout</label><select className="input-chique" style={{ fontWeight: '600' }} value={categoria} onChange={(e) => setCategoria(e.target.value)}><option value="Layout 1: Foto Inteira">Modelo 1: Imagem Inteira em Tela Cheia</option><option value="Layout 2: Cyber Dashboard">Modelo 2: Split Dashboard (Imagem na Direita)</option><option value="Layout 3: Minimalista Sem Foto">Modelo 3: Editorial Nobre (Apenas Texto)</option><option value="Layout 4: Somente foto/vídeo">Modelo 4: Foto/Vídeo Puro em Tela Cheia (Sem Textos)</option><option value="Layout 5: Revista (Foto Esquerda)">Modelo 5: Revista Class (Imagem na Esquerda)</option></select></div>
-            <div style={{ textAlign: 'left' }}><label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Anexar Mídia (Foto/Vídeo)</label><input type="file" accept="image/*,video/*" className="input-chique" onChange={async (e) => { const file = e.target.files[0]; if (!file) return; const name = `${Date.now()}_${file.name}`; const { error } = await supabase.storage.from('imagens-mural').upload(name, file); if (!error) { const { data } = supabase.storage.from('imagens-mural').getPublicUrl(name); setLinkFundo(data.publicUrl); alert("Mídia vinculada!"); } }} /></div>
+           <div style={{ textAlign: 'left' }}><label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Modelo do Layout</label><select className="input-chique" style={{ fontWeight: '700', backgroundColor: '#090f21', color: '#00d2ff', borderColor: 'rgba(0, 210, 255, 0.3)', textShadow: '0 0 8px rgba(0, 210, 255, 0.5)', cursor: 'pointer' }} value={categoria} onChange={(e) => setCategoria(e.target.value)}><option value="Layout 1: Foto Inteira" style={{ backgroundColor: '#090f21', color: '#ffffff' }}>Modelo 1: Imagem Inteira em Tela Cheia</option><option value="Layout 2: Cyber Dashboard" style={{ backgroundColor: '#090f21', color: '#00d2ff', fontWeight: '700' }}>Modelo 2: Split Dashboard (Imagem na Direita)</option><option value="Layout 3: Minimalista Sem Foto" style={{ backgroundColor: '#090f21', color: '#ffffff' }}>Modelo 3: Editorial Nobre (Apenas Texto)</option><option value="Layout 4: Alerta Critico" style={{ backgroundColor: '#090f21', color: '#ffffff' }}>Modelo 4: Foto/Vídeo Puro em Tela Cheia (Sem Textos)</option><option value="Layout 5: Revista (Foto Esquerda)" style={{ backgroundColor: '#090f21', color: '#ffffff' }}>Modelo 5: Revista Class (Imagem na Esquerda)</option></select></div>
+
+            <div style={{ textAlign: 'left' }}><label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Anexar Mídia (Foto ou Vídeo .mp4)</label><input type="file" accept="*/*" className="input-chique" onChange={async (e) => { const files = e.target.files; if (!files || files.length === 0) return; const name = `${Date.now()}_${files.name}`; const { error } = await supabase.storage.from('imagens-mural').upload(name, files); if (!error) { const { data } = supabase.storage.from('imagens-mural').getPublicUrl(name); setLinkFundo(data.publicUrl); alert("Mídia vinculada com sucesso!"); } }} /></div>
             
             <button type="submit" style={{ width: '100%', padding: '16px', border: 'none', borderRadius: '12px', background: 'var(--texto-principal)', color: 'var(--bg-principal)', fontSize: '14px', fontWeight: '800', cursor: 'pointer', marginTop: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>Transmitir para a TV</button>
           </form>
-          {/* MONITORES DE PREVIEW E EXCLUSÃO */}
+            
+            {/* 👑 TELA DE BOAS-VINDAS INSTITUCIONAL E DATA EM TEMPO REAL */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <div className="led-moldura-premium" style={{ padding: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}><h3 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: 'var(--neon-fluxo)' }}>Preview da TV</h3><span style={{ fontSize: '10px', fontWeight: '700', opacity: 0.6 }}>{horaPreview}</span></div>
-              <div style={{ width: '100%', height: '180px', background: 'rgba(0,0,0,0.2)', borderRadius: '14px', border: '1px solid var(--border-premium)', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '14px', boxSizing: 'border-box' }}><h4 style={{ fontSize: '14px', fontWeight: '800', margin: 0 }}>{cardParaPreview ? cardParaPreview.titulo : 'MURAL DIGITAL'}</h4><div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cardParaPreview && cardParaPreview.link_fundo ? <img src={cardParaPreview.link_fundo} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px' }} alt="Preview" /> : <p className="fonte-cursiva" style={{ fontSize: '14px', opacity: 0.4 }}>Sem mídia ativa</p>}</div><div style={{ height: '20px', background: 'var(--neon-fluxo)', color: '#060b19', fontSize: '9px', fontWeight: '800', display: 'flex', alignItems: 'center', padding: '0 8px', borderRadius: '4px', overflow: 'hidden', whiteSpace: 'nowrap' }}>{letreiroAtivo}</div></div>
-            </div>
+            <div className="led-moldura-premium" style={{ padding: '32px 24px', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#ffffff', margin: 0 }}>Olá, Servidor!</h3>
+                <p className="fonte-cursiva" style={{ fontSize: '15px', color: 'var(--neon-fluxo)', marginTop: '4px' }}>Bom trabalho na gestão escolar</p>
+              </div>
+              
+              <div style={{ width: '100%', padding: '20px', background: 'rgba(0,0,0,0.2)', borderRadius: '14px', border: '1px solid var(--border-premium)' }}>
+                <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--texto-secundario)', display: 'block', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>Calendário do Sistema</span>
+                <p style={{ fontSize: '15px', fontWeight: '700', color: '#ffffff', margin: 0, textTransform: 'capitalize' }}>
+                  {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
+                </p>
+              </div>
 
-            <form onSubmit={handleLetreiro} className="led-moldura-premium" style={{ padding: '24px' }}><h3 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: 'var(--neon-fluxo)', marginBottom: '14px', textAlign: 'left' }}>Atualizar Rodapé</h3><input type="text" className="input-chique" value={textoAlerta} onChange={(e) => setTextoAlerta(e.target.value)} placeholder="Texto corrido do letreiro..." /><button type="submit" style={{ width: '100%', padding: '12px', border: 'none', borderRadius: '12px', background: 'var(--texto-principal)', color: 'var(--bg-principal)', fontSize: '13px', fontWeight: '700', marginTop: '12px', cursor: 'pointer' }}>Atualizar</button></form>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(0,210,255,0.05)', padding: '12px 16px', borderRadius: '10px', border: '1px solid rgba(0,210,255,0.1)' }}>
+                <div style={{ width: '6px', height: '6px', backgroundColor: 'var(--neon-fluxo)', borderRadius: '50%', boxShadow: '0 0 8px var(--neon-fluxo)' }} />
+                <p style={{ fontSize: '12px', color: 'var(--texto-secundario)', margin: 0, fontWeight: '500' }}>
+                  O letreiro inferior da TV está configurado como: <span style={{ color: '#ffffff', fontWeight: '600' }}>{letreiroAtivo}</span>
+                </p>
+              </div>
+            </div>
+            
+            {/* FORMULÁRIO DO LETREIRO INFERIOR */}
+            <form onSubmit={handleLetreiro} className="led-moldura-premium" style={{ padding: '24px' }}>
+              <h3 style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', color: 'var(--neon-fluxo)', marginBottom: '14px', textAlign: 'left' }}>Atualizar Rodapé</h3>
+              <input type="text" className="input-chique" value={textoAlerta} onChange={(e) => setTextoAlerta(e.target.value)} placeholder="Texto corrido do letreiro..." />
+              <button type="submit" style={{ width: '100%', padding: '12px', border: 'none', borderRadius: '12px', background: 'var(--texto-principal)', color: 'var(--bg-principal)', fontSize: '13px', fontWeight: '700', marginTop: '12px', cursor: 'pointer' }}>Atualizar</button>
+            </form>
           </div>
         </div>
 
