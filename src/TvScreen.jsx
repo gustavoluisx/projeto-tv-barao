@@ -1,10 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function TvScreen({ supabase }) {
   const [horaAtual, setHoraAtual] = useState('');
   const [cards, setCards] = useState([]);
   const [cardAtualIndex, setCardAtualIndex] = useState(0);
   const [textoLetreiro, setTextoLetreiro] = useState('Painel Informativo PEI Barão de Jundiaí');
+  const [pausada, setPausada] = useState(false);
+  const [fixada, setFixada] = useState(false);
+  const [statusCanalTV, setStatusCanalTV] = useState('CONNECTING');
+  const canalConectado = statusCanalTV === 'SUBSCRIBED';
+  const canalControleRef = useRef(null);
+  const cardsRef = useRef(cards);
+  useEffect(() => {
+    cardsRef.current = cards;
+  }, [cards]);
 
   useEffect(() => {
     const clockInterval = setInterval(() => { 
@@ -14,7 +23,10 @@ export default function TvScreen({ supabase }) {
       const { data } = await supabase.from('avisos').select('*').order('id', { ascending: false });
       if (data) {
         const normais = data.filter(item => item.categoria !== 'Letreiro');
-        if (normais.length > 0) setCards(normais);
+        setCards((atuais) => (
+          JSON.stringify(atuais) === JSON.stringify(normais) ? atuais : normais
+        ));
+        setCardAtualIndex((indice) => normais.length > 0 ? indice % normais.length : 0);
         const letreiro = data.find(item => item.categoria && item.categoria.toLowerCase() === 'letreiro');
         if (letreiro) setTextoLetreiro(letreiro.descricao);
       }
@@ -23,17 +35,102 @@ export default function TvScreen({ supabase }) {
     const databaseInterval = setInterval(buscarDados, 5000);
     return () => { clearInterval(clockInterval); clearInterval(databaseInterval); };
   }, [supabase]);
+
   useEffect(() => {
-    if (cards.length <= 1) return;
+    const canal = supabase.channel('canal-tv-barao', {
+      config: { presence: { key: `tv-${Date.now()}-${Math.random().toString(36).slice(2)}` } },
+    });
+    canalControleRef.current = canal;
+
+    canal.on('broadcast', { event: 'comando-remoto' }, ({ payload = {} }) => {
+      const listaAtual = cardsRef.current;
+
+      switch (payload.acao) {
+        case 'PAUSAR':
+          setPausada(true);
+          break;
+        case 'RETOMAR':
+          setPausada(false);
+          setFixada(false);
+          break;
+        case 'PROXIMO':
+          setFixada(false);
+          if (listaAtual.length > 0) {
+            setCardAtualIndex((indice) => (indice + 1) % listaAtual.length);
+          }
+          break;
+        case 'ANTERIOR':
+          setFixada(false);
+          if (listaAtual.length > 0) {
+            setCardAtualIndex((indice) => (indice - 1 + listaAtual.length) % listaAtual.length);
+          }
+          break;
+        case 'FIXAR':
+          if (payload.slideId !== undefined && payload.slideId !== null) {
+            const indice = listaAtual.findIndex((card) => String(card.id) === String(payload.slideId));
+            if (indice >= 0) setCardAtualIndex(indice);
+          }
+          setFixada(true);
+          break;
+        default:
+          break;
+      }
+    });
+
+    canal.subscribe((status) => {
+      if (canalControleRef.current !== canal) return;
+      setStatusCanalTV(status);
+      console.log('Status do canal de controle da TV:', status);
+    });
+
+    return () => {
+      if (canalControleRef.current === canal) canalControleRef.current = null;
+      supabase.removeChannel(canal);
+    };
+  }, [supabase]);
+
+  useEffect(() => {
+    if (cards.length <= 1 || pausada || fixada) return;
     const tempoDeExibicao = (cards[cardAtualIndex]?.duracao || 10) * 1000;
     const rotationTimeout = setTimeout(() => { 
       setCardAtualIndex((prevIndex) => (prevIndex + 1) % cards.length); 
     }, tempoDeExibicao);
     return () => clearTimeout(rotationTimeout);
-  }, [cards, cardAtualIndex]);
+  }, [cards, cardAtualIndex, pausada, fixada]);
 
   const cardAtivo = cards[cardAtualIndex];
   const layoutDefinido = cardAtivo?.categoria || "Layout 2: Cyber Dashboard";
+
+  useEffect(() => {
+    const canal = canalControleRef.current;
+    if (!canalConectado || !canal) return;
+
+    const estado = {
+      papel: 'tv',
+      aviso: cardAtivo ? {
+        id: cardAtivo.id,
+        titulo: cardAtivo.titulo,
+        descricao: cardAtivo.descricao,
+        categoria: cardAtivo.categoria,
+        horario: cardAtivo.horario,
+        duracao: cardAtivo.duracao,
+        link_fundo: cardAtivo.link_fundo,
+      } : null,
+      letreiro: textoLetreiro,
+      pausada,
+      fixada,
+      atualizadoEm: Date.now(),
+    };
+
+    canal.track(estado).then(() => canal.send({
+      type: 'broadcast',
+      event: 'estado-tv',
+      payload: estado,
+    })).catch((error) => {
+      console.error('Erro ao publicar o estado atual da TV:', error);
+    });
+  }, [canalConectado, cardAtivo, textoLetreiro, pausada, fixada]);
+
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#060b19', color: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden', width: '100vw', height: '100vh' }}>
       
@@ -58,7 +155,13 @@ export default function TvScreen({ supabase }) {
             PEI Barão de Jundiaí
           </div>
         </div>
-        <div style={{ fontSize: 'calc(14px + 0.5vw)', fontWeight: '700', color: '#00d2ff', fontFamily: 'monospace', letterSpacing: '1px' }}>{horaAtual}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', color: canalConectado ? '#00ff88' : '#94a3b8', fontSize: '10px', fontWeight: '800', letterSpacing: '1px' }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: canalConectado ? '#00ff88' : '#64748b' }} />
+            {canalConectado ? 'CONTROLE ONLINE' : `CONTROLE ${statusCanalTV}`}
+          </div>
+          <div style={{ fontSize: 'calc(14px + 0.5vw)', fontWeight: '700', color: '#00d2ff', fontFamily: 'monospace', letterSpacing: '1px' }}>{horaAtual}</div>
+        </div>
       </div>
       
       {/* CONTEÚDO DINÂMICO RESPONSIVO */}
