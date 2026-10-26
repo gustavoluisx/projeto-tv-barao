@@ -11,6 +11,7 @@ export default function TvScreen({ supabase }) {
   const canalConectado = statusCanalTV === 'SUBSCRIBED';
   const canalControleRef = useRef(null);
   const cardsRef = useRef(cards);
+  const ultimaPresencaRef = useRef(0);
   useEffect(() => {
     cardsRef.current = cards;
   }, [cards]);
@@ -122,13 +123,30 @@ export default function TvScreen({ supabase }) {
       atualizadoEm: Date.now(),
     };
 
-    canal.track(estado).then(() => canal.send({
+    const publicarEstado = () => canal.send({
       type: 'broadcast',
       event: 'estado-tv',
       payload: estado,
-    })).catch((error) => {
+    }).catch((error) => {
       console.error('Erro ao publicar o estado atual da TV:', error);
     });
+
+    publicarEstado();
+    // Broadcast keeps controls responsive; Presence allows at most 5 updates per 30 seconds.
+    const atrasoPresenca = Math.max(0, 10000 - (Date.now() - ultimaPresencaRef.current));
+    const timeoutPresenca = setTimeout(() => {
+      ultimaPresencaRef.current = Date.now();
+      canal.track(estado).catch((error) => {
+        console.error('Erro ao atualizar a presença da TV:', error);
+      });
+    }, atrasoPresenca);
+    // Send a fresh snapshot to controllers that join while the TV is paused.
+    const intervaloEstado = setInterval(publicarEstado, 3000);
+
+    return () => {
+      clearTimeout(timeoutPresenca);
+      clearInterval(intervaloEstado);
+    };
   }, [canalConectado, cardAtivo, textoLetreiro, pausada, fixada]);
 
   return (
