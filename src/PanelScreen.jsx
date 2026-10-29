@@ -177,7 +177,7 @@ export default function PanelScreen({ supabase, dark, setDark }) {
               <div style={{ flex: 1, textAlign: 'left' }}><label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Duração na TV (seg)</label><input type="number" className="input-chique" value={duracao} onChange={(e) => setDuracao(e.target.value)} /></div>
             </div>
             <div style={{ textAlign: 'left' }}>
-              <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Upload de Imagem ou Vídeo para a TV</label>
+              <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--texto-secundario)', display: 'block', marginBottom: '6px' }}>Upload de Imagem para a TV</label>
               <input 
                 type="file" 
                 className="input-chique" 
